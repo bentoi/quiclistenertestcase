@@ -16,13 +16,14 @@ internal class Program
         var tasks = new List<Task>();
 
         int i = 0;
-        for (; i < 4; ++i)
+        ;
+        for (; i < int.Parse(args[0]); ++i)
         {
             int client = i;
             tasks.Add(Task.Run(() => ConnectAsync(client, delay: true)));
         }
 
-        for (; i < 8; ++i)
+        for (; i < int.Parse(args[1]); ++i)
         {
             int client = i;
             tasks.Add(Task.Run(() => ConnectAsync(client, delay: false)));
@@ -62,7 +63,7 @@ internal class Program
                     }
                 });
 
-                Console.WriteLine($"{stopWatch.Elapsed}: connection {i} connection establishment succeeds after {(stopWatch.Elapsed - start).TotalMilliseconds} (ms)");
+                Console.WriteLine($"{stopWatch.Elapsed}: connection {i} connection establishment succeeds after {(stopWatch.Elapsed - start).TotalMilliseconds} (ms) {(delay ? "(delayed)" : "")}");
             }
             catch (Exception exception)
             {
