@@ -12,22 +12,30 @@ internal class Program
         var stopWatch = new Stopwatch();
         stopWatch.Start();
 
+        TimeSpan start = stopWatch.Elapsed;
+        var tasks = new List<Task>();
 
-        Task task1 = Task.Run(() => ConnectAsync(1, malicious: true));
+        int i = 0;
+        for (; i < 4; ++i)
+        {
+            int client = i;
+            tasks.Add(Task.Run(() => ConnectAsync(client, delay: true)));
+        }
 
-        await Task.Delay(1000);
+        for (; i < 8; ++i)
+        {
+            int client = i;
+            tasks.Add(Task.Run(() => ConnectAsync(client, delay: false)));
+        }
 
-        Task task2 = Task.Run(() => ConnectAsync(2, malicious: false));
-        Task task3 = Task.Run(() => ConnectAsync(3, malicious: false));
+        await Task.WhenAll(tasks);
 
-        await Task.WhenAll(task1, task2, task3);
-
-        async Task ConnectAsync(int i, bool malicious)
+        async Task ConnectAsync(int i, bool delay)
         {
             try
             {
                 // Start the first connection establishment.
-                Console.WriteLine($"{stopWatch.Elapsed}: starting connection {i} connection establishment");
+                Console.WriteLine($"{stopWatch.Elapsed}: starting connection {i} connection establishment {(delay ? "(delayed)" : "")}");
 
                 await using var connection = await QuicConnection.ConnectAsync(new QuicClientConnectionOptions
                 {
@@ -39,21 +47,22 @@ internal class Program
                         ApplicationProtocols = new List<SslApplicationProtocol> { new SslApplicationProtocol("h3") },
                         RemoteCertificateValidationCallback = (sender, certificate, chain, errors) =>
                             {
-                                if (malicious)
+                                if (delay)
                                 {
                                     // Malicious sleep to trigger the server AcceptConnectAsync hang.
-                                    Console.WriteLine($"{stopWatch.Elapsed}: 15s client certificate validation");
+                                    //Console.WriteLine($"{stopWatch.Elapsed}: client remote certificate validation delayed for 15s");
                                     Thread.Sleep(15000); // 15s sleep
                                 }
                                 else
                                 {
-                                    Console.WriteLine($"{stopWatch.Elapsed}: normal client certificate validation");
+                                    //Console.WriteLine($"{stopWatch.Elapsed}: client remote certificate validation returns immediately");
                                 }
                                 return true;
                             }
                     }
                 });
-                Console.WriteLine($"{stopWatch.Elapsed}: connection {i} connection establishment success");
+
+                Console.WriteLine($"{stopWatch.Elapsed}: connection {i} connection establishment succeeds after {(stopWatch.Elapsed - start).TotalMilliseconds} (ms)");
             }
             catch (Exception exception)
             {
