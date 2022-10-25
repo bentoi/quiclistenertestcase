@@ -67,10 +67,8 @@ internal class Program
                             {
                                 Console.WriteLine($"{stopWatch.Elapsed}: normal client certificate validation");
                             }
-
                             return true;
-                        },
-                    ClientCertificates = new X509CertificateCollection { new X509Certificate2("cert.p12", "password") }
+                        }
                 }
             });
 
