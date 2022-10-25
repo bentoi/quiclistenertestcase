@@ -14,14 +14,12 @@ internal class Program
         TimeSpan start = stopWatch.Elapsed;
         var tasks = new List<Task>();
 
-        int i = 0;
-
         // Start clients that delay the remote certificate validation.
         if (args.Length < 1 || !int.TryParse(args[0], out int bogusClientCount))
         {
             bogusClientCount = 2;
         }
-        for (; i < bogusClientCount; ++i)
+        for (int i = 0; i < bogusClientCount; ++i)
         {
             int client = i;
             tasks.Add(Task.Run(() => RunQuicClientAsync(client, delay: true)));
@@ -32,9 +30,9 @@ internal class Program
         {
             normalClientCount = 2;
         }
-        for (; i < normalClientCount; ++i)
+        for (int i = 0; i < normalClientCount; ++i)
         {
-            int client = i;
+            int client = bogusClientCount + i;
             tasks.Add(Task.Run(() => RunQuicClientAsync(client, delay: false)));
         }
 
