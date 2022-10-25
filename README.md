@@ -6,6 +6,11 @@ Two clients are provided: a Quic client and an HTTP/3 client.
 
 Both exhibit the Kestrel issue: Kestrel can't promptly accept new connections if it's stuck waiting on one of the bogus Quic/Http connection handshake to complete.
 
+Usage:
+
+   bin/Debug/http-client <delayed connection count> <normal connection count>
+   bin/Debug/quic-client <delayed connection count> <normal connection count>   
+
 For example:
 ```csharp
 ~/workspace/quiclistenertestcase/http-client$ dotnet run 5 5
