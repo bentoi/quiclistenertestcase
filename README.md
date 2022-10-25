@@ -1,26 +1,34 @@
-This test case demonstrates two issues with Quic connection establishment and the Quic listener implementation. This test case uses Kestrel for the server and the client is a simple Quic client.
+This test demonstrates the issue with the QuicListener delaying connection establishment when some client are slow to validate the remote certificate or delay on purpose the validation (malicious client).
 
-- first issue: `QuicConnection.ConnectAsync` can block synchronously the thread
-- second issue: `QuicListener.AcceptAsync` doesn't accept any new connection establishment as long as the client doesn't validate the server certificate
+The test case runs a Kestrel server with only HTTP/3 enabled.
 
-The output showing the first issue:
+Two clients are provided: a Quic client and an HTTP/3 client.
+
+Both exhibit the Kestrel issue: Kestrel can't promptly accept new connections if it's stuck on waiting on one of the Quic connection handshake to complete.
+
+For example:
 ```csharp
-00:00:00.0008648: starting connection1 connection establishment
-00:00:00.1361398: starting connection2 connection establishment
-00:00:00.1999513: malicious 15s client certificate validation
-<-- second ConnectAsync blocks the thread here, it would otherwise print "waiting for connection1 connection establishment" -->
-00:00:15.3641743: waiting for connection1 connection establishment
-00:00:15.3822147: normal client certificate validation
-00:00:15.4157622: waiting for connection2 connection establishment
+~/workspace/quiclistenertestcase/http-client$ dotnet run 5 5
+00:00:00.0188153: starting Http client 0-delayed
+00:00:00.0188626: starting Http client 1-delayed
+00:00:00.0188767: starting Http client 3-delayed
+00:00:00.0188621: starting Http client 2-delayed
+00:00:00.1523461: starting Http client 5
+00:00:00.1528555: starting Http client 6
+00:00:00.1531022: starting Http client 7
+00:00:00.1533254: starting Http client 8
+00:00:00.1535033: starting Http client 4-delayed
+00:00:00.1538022: starting Http client 9
+00:00:15.3543138: Http client 0-delayed GET failed after 15354.3135 (ms): System.Net.Http.HttpRequestException
+00:00:15.3624149: Http client 1-delayed GET failed after 15362.4133 (ms): System.Net.Http.HttpRequestException
+00:00:15.4120303: Http client 5 GET returned after 15412.0296 (ms)
+00:00:15.4156046: Http client 6 GET returned after 15415.6033 (ms)
+00:00:15.4176752: Http client 7 GET returned after 15417.6743 (ms)
+00:00:15.4383169: Http client 3-delayed GET failed after 15438.3165 (ms): System.Net.Http.HttpRequestException
+00:00:15.4389524: Http client 2-delayed GET failed after 15438.9528 (ms): System.Net.Http.HttpRequestException
+00:00:30.6200279: Http client 4-delayed GET failed after 30620.0269 (ms): System.Net.Http.HttpRequestException
+00:00:30.6402066: Http client 9 GET returned after 30640.2059 (ms)
+00:00:30.6427695: Http client 8 GET returned after 30642.7676 (ms)
 ```
 
-The output showing the second issue:
-```csharp
-00:00:00.0007263: starting connection1 connection establishment
-00:00:00.1333318: starting connection2 connection establishment
-00:00:00.1349389: waiting for connection1 connection establishment
-00:00:00.2029323: malicious 15s client certificate validation
-00:00:00.2483211: normal client certificate validation
-<-- the second ConnectAsync doesn't block here, the 15s wait is from the waiting of the fist connection establishment -->
-00:00:15.2076603: waiting for connection2 connection establishment
-```
+The HTTP requests from the legit non-delayed clients take up to 30s here.
