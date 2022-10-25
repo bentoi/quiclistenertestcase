@@ -11,7 +11,6 @@ internal class Program
         var stopWatch = new Stopwatch();
         stopWatch.Start();
 
-        TimeSpan start = stopWatch.Elapsed;
         var tasks = new List<Task>();
 
         // Start clients that delay the remote certificate validation.
@@ -64,11 +63,11 @@ internal class Program
                     }
                 });
 
-                Console.WriteLine($"{stopWatch.Elapsed}: connection {i} connection establishment succeeds after {(stopWatch.Elapsed - start).TotalMilliseconds} (ms) {(delay ? "(delayed)" : "")}");
+                Console.WriteLine($"{stopWatch.Elapsed}: connection {i} connection establishment succeeds after {stopWatch.Elapsed} (ms) {(delay ? "(delayed)" : "")}");
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"{stopWatch.Elapsed}: connection {i} connection establishment failed:\n{exception}");
+                Console.WriteLine($"{stopWatch.Elapsed}: connection {i} connection establishment failed after {stopWatch.Elapsed} (ms) {(delay ? "(delayed)" : "")}:\n{exception}");
                 throw;
             }
         }

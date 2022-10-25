@@ -10,7 +10,6 @@ internal class Program
         var stopWatch = new Stopwatch();
         stopWatch.Start();
 
-        TimeSpan start = stopWatch.Elapsed;
         var tasks = new List<Task>();
 
         // Start clients that delay the remote certificate validation.
@@ -65,11 +64,11 @@ internal class Program
             try
             {
                 using HttpResponseMessage response = await httpClient.GetAsync("/");
-                Console.WriteLine($"{stopWatch.Elapsed}: Http client {i}{(delay ? "-delayed" : "")} GET returned after {(stopWatch.Elapsed - start).TotalMilliseconds} (ms)");
+                Console.WriteLine($"{stopWatch.Elapsed}: Http client {i}{(delay ? "-delayed" : "")} GET returned after {stopWatch.Elapsed} (ms)");
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"{stopWatch.Elapsed}: Http client {i}{(delay ? "-delayed" : "")} GET failed after {(stopWatch.Elapsed - start).TotalMilliseconds} (ms): {exception.GetType()}");
+                Console.WriteLine($"{stopWatch.Elapsed}: Http client {i}{(delay ? "-delayed" : "")} GET failed after {stopWatch.Elapsed} (ms): {exception.GetType()}");
             }
         }
     }
