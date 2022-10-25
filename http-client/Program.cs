@@ -16,9 +16,9 @@ internal class Program
         int i = 0;
 
         // Start clients that delay the remote certificate validation.
-        if (args.Length == 0 || !int.TryParse(args[0], out int bogusClientCount))
+        if (args.Length < 1 || !int.TryParse(args[0], out int bogusClientCount))
         {
-            bogusClientCount = 1;
+            bogusClientCount = 2;
         }
         for (; i < bogusClientCount; ++i)
         {
@@ -27,9 +27,9 @@ internal class Program
         }
 
         // Start normal clients.
-        if (args.Length == 0 || !int.TryParse(args[1], out int normalClientCount))
+        if (args.Length < 2 || !int.TryParse(args[1], out int normalClientCount))
         {
-            normalClientCount = 1;
+            normalClientCount = 2;
         }
         for (; i < normalClientCount; ++i)
         {
