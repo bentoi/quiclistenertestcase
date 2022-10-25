@@ -1,7 +1,7 @@
 This test case demonstrates two issues with Quic connection establishment and the Quic listener implementation. This test case uses Kestrel for the server and the client is a simple Quic client.
 
 - first issue: `QuicConnection.ConnectAsync` can block synchronously the thread
-- second issue: `QuicListener.AcceptAsync` doesn't accept any new connection establishment as long as the client  if a client remote certificate verification callback hangs
+- second issue: `QuicListener.AcceptAsync` doesn't accept any new connection establishment as long as the client doesn't validate the server certificate
 
 The output showing the first issue:
 ```csharp
