@@ -1,10 +1,10 @@
-This test demonstrates the issue with the QuicListener delaying connection establishment when some client are slow to validate the remote certificate or delay on purpose the validation (malicious client).
+This test demonstrates the issue with the QuicListener delaying connection establishment when some clients are slow to validate the remote certificate or if they delay it on purpose (malicious client).
 
 The test case runs a Kestrel server with only HTTP/3 enabled.
 
 Two clients are provided: a Quic client and an HTTP/3 client.
 
-Both exhibit the Kestrel issue: Kestrel can't promptly accept new connections if it's stuck on waiting on one of the Quic connection handshake to complete.
+Both exhibit the Kestrel issue: Kestrel can't promptly accept new connections if it's stuck waiting on one of the bogus Quic/Http connection handshake to complete.
 
 For example:
 ```csharp
